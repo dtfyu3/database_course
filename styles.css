@@ -1,0 +1,264 @@
+body {
+    font-size: 16px;
+}
+
+.subjects-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.subjects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.subject-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.subject-card:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.avatar {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+}
+
+.avatar img {
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+}
+
+.profile {
+    position: fixed;
+    right: 30px;
+    top: 10px;
+    max-width: 130px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.profile:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+#username {
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    color: #555;
+    margin-top: 5px;
+}
+
+#logout {
+    font-size: 16px;
+    padding: 5px 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#logout:hover {
+    transform: scale(1.05);
+    transition: all 0.2s ease-in-out;
+}
+
+table {
+    text-align: left;
+    margin: 0 auto;
+    margin-top: 10px;
+    max-width: 100%;
+    width: calc(85%);
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    overflow-x: auto;
+}
+
+th {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dddddd;
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dddddd;
+}
+
+thead tr {
+    background-color: #4CAF50;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+}
+
+tbody tr {
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+
+tbody tr:nth-of-type(even) {
+    background-color: #f1f1f1;
+}
+
+tbody tr:hover {
+    background-color: #e0f7fa;
+}
+
+tbody tr:last-of-type {
+    border-bottom: 2px solid #4CAF50;
+}
+
+select {
+    display: block;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #333;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    appearance: none;
+    /* Убирает стандартный вид стрелки */
+    -moz-appearance: none;
+    /* Для Firefox */
+    -webkit-appearance: none;
+    /* Для Safari и Chrome */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23999' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    /* Кастомная стрелка */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    margin: 0 auto;
+    width: calc(100%);
+    max-width: 300px;
+}
+
+select:hover {
+    border-color: #4CAF50;
+}
+
+select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+select option {
+    padding: 10px;
+}
+.back-button {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 10px 0;
+    background-color: #4CAF50; /* Цвет фона кнопки */
+    color: white; /* Цвет текста */
+    border-radius: 5px; /* Закругленные углы */
+    text-decoration: none; /* Убираем подчеркивание */
+    font-size: 16px; /* Размер шрифта */
+    transition: background-color 0.3s; /* Плавный переход */
+}
+
+.back-button:hover {
+    background-color: #45a049; /* Цвет при наведении */
+}
+.subject-card span{
+    font-size: 20px;
+}
+
+.subjects-title {
+    font-size: 24px; /* Размер шрифта */
+    font-weight: bold; /* Жирный шрифт */
+    color: #333; /* Цвет текста */
+    text-align: center; /* Выравнивание по центру */
+    margin: 20px 0; /* Отступ сверху и снизу */
+    position: relative; /* Позволяет использовать псевдоэлементы */
+}
+
+.subjects-title::after {
+    content: ""; /* Псевдоэлемент без содержимого */
+    display: block; /* Отображаемый блок */
+    width: 50px; /* Ширина линии */
+    height: 4px; /* Высота линии */
+    background-color: #4CAF50; /* Цвет линии */
+    margin: 10px auto; /* Центрируем линию */
+}
+@media (max-width: 768px) {
+    .profile {
+        width: 80px;
+        /* Уменьшаем ширину профиля на мобильных */
+        margin-left: 10px;
+        /* Меньший отступ слева */
+        padding: 0px;
+        right: 10px;
+    }
+
+    .avatar {
+        width: 30px;
+        /* Уменьшаем размер аватарки */
+        height: 30px;
+        /* Уменьшаем высоту аватарки */
+    }
+
+    #username {
+        font-size: 10px;
+        /* Уменьшаем размер шрифта для имени */
+        text-align: center;
+        /* Центрируем текст */
+        white-space: nowrap;
+        /* Отключаем перенос строк */
+    }
+
+    table {
+        flex: 1;
+        /* Таблица занимает всё оставшееся пространство */
+        padding-right: 0;
+        /* Убираем отступ справа для таблицы */
+        margin-top: 30px;
+        /* Добавляем отступ сверху для лучшего визуального разделения */
+        width: 100%;
+    }
+
+    #logout {
+        font-size: 10px;
+    }
+
+    select {
+        width: 50%;
+    }
+}
