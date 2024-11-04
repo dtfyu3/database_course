@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles.css">
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <title></title>
 </head>
 <body>
@@ -11,9 +13,15 @@
         &#8592; Назад
     </a>
     <select class="groups-list">
-        <option selected value="">Группы</option>
+        <option selected value="" disabled>Группы</option>
     </select>
-
+    <div class="journal-type-container">
+        <div><input type="radio" class="journal-type" name="journal-type" value="grades">Оценки</input></div>
+        <div><input type="radio" class="journal-type" name="journal-type" value="attendance">Посещаемость</input></div>
+    </div>
+    <div class="table-container">
+        <div class="export-container"><input type="button" value="Экспорт Excel" class="export" hidden disabled ></div>
+    </div>
     <div class="profile" id="profile">
         <div class="avatar"><img loading="lazy" id="avatarIcon"></div>
         <div class="username" id="username"><span></span></div>
@@ -21,4 +29,5 @@
     </div>
     <script src="subject.js"></script>
 </body>
+
 </html>

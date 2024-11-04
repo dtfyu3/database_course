@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
     logout.addEventListener('click', logOut);
     const avatarIcon = document.getElementById('avatarIcon');
     const subjectsGrid = document.getElementById("subjects");
+    const teacherId = window.localStorage.getItem("teacherId");
+    document.getElementById('reports').addEventListener('click',() => {window.location.href = 'reports.html';});
     if (!window.localStorage.getItem("userId")) window.location.href = 'auth/register.html';
     else {
         userId = window.localStorage.getItem("userId");
