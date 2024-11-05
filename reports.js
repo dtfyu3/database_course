@@ -55,11 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (avgChart) avgChart.destroy();
         const ctx = document.getElementById('average-grade-chart').getContext('2d');
         const canvas_container = document.querySelector('.canvas-container');
-        document.getElementById('average-grade-chart').width = canvas_container.clientWidth * 0.9;
-        document.getElementById('average-grade-chart').height = canvas_container.clientWidth * 0.5;
-
-        ctx.hidden = false;
         const isMobile = window.innerWidth <= 768;
+        document.getElementById('average-grade-chart').width = canvas_container.clientWidth * 0.9;
+        if (!isMobile) document.getElementById('average-grade-chart').height = canvas_container.clientWidth * 0.38;
+        else document.getElementById('average-grade-chart').height = canvas_container.clientWidth * 0.8;
+        ctx.hidden = false;
         const maxRotation = isMobile ? 90 : 0;
         avgChart = new Chart(ctx, {
             type: 'bar', // Вы можете использовать 'bar', 'line', 'pie' и другие типы графиков
