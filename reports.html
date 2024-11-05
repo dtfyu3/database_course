@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <a class="back-button" href="javascript:history.back()">
+        &#8592; Назад
+    </a>
     <div class="container">
         <h1>Генерация отчета</h1>
         <div class="form-group">
@@ -26,7 +29,9 @@
             <input type="radio" value="student" name="report-type" class="report-type">По студенту
         </div>
         <button id="generate-report" class="button">Сгенерировать отчет</button>
-        <canvas id="average-grade-chart" width="400" height="200" hidden></canvas>
+        <div class="canvas-container">
+            <canvas id="average-grade-chart" hidden></canvas>
+        </div>
     </div>
     <script src="reports.js"></script>
 </body>

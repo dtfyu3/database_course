@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     subjects_list.addEventListener('change', pick);
     const generatebtn = document.getElementById('generate-report');
     generatebtn.addEventListener('click', generate);
-    let radios =  document.getElementsByName('report-type');
+    let radios = document.getElementsByName('report-type');
     let avgChart;
 
     getSubjects();
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (groups_list.value != '' && subjects_list.value != '') {
             const groupId = groups_list.value;
             const subject = subjects_list.value;
-            if(avgChart) avgChart.destroy();
+            if (avgChart) avgChart.destroy();
             getAvg(groupId, subject);
         }
     }
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let radio of radios) {
             if (radio.checked) {
                 type = radio.value;
-                break; 
+                break;
             }
         }
         const xhr = new XMLHttpRequest();
@@ -52,9 +52,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function createChart(groups, averages) {
+        if (avgChart) avgChart.destroy();
         const ctx = document.getElementById('average-grade-chart').getContext('2d');
+        const canvas_container = document.querySelector('.canvas-container');
+        document.getElementById('average-grade-chart').width = canvas_container.clientWidth * 0.9;
+        document.getElementById('average-grade-chart').height = canvas_container.clientWidth * 0.5;
+
         ctx.hidden = false;
-        
+        const isMobile = window.innerWidth <= 768;
+        const maxRotation = isMobile ? 90 : 0;
         avgChart = new Chart(ctx, {
             type: 'bar', // Вы можете использовать 'bar', 'line', 'pie' и другие типы графиков
             data: {
@@ -62,17 +68,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 datasets: [{
                     label: 'Средний балл',
                     data: averages, // Средние баллы как данные для графика
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)', 
-                    borderColor: 'rgba(75, 192, 192, 1)', 
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true
-                    }
+                    },
+                    x: {
+                        ticks: {
+                           maxRotation: maxRotation, // Угол наклона, изменяющийся в зависимости от устройства
+                            minRotation: maxRotation // Угол наклона, изменяющийся в зависимости от устройства
+                        }
+                    },
                 }
             }
         });
@@ -130,4 +143,12 @@ document.addEventListener("DOMContentLoaded", () => {
             list.appendChild(option);
         });
     }
+
+
+    window.addEventListener('resize', function () {
+        if (avgChart) {
+            avgChart.destroy();
+            generatebtn.click(); // Перерисовка графика
+        }
+    });
 });

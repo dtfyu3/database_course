@@ -335,6 +335,18 @@ input[type="radio"] {
     text-align: center;
     margin-top: 10px;
 }
+#average-grade-chart{
+    margin:  0 auto;
+    height: auto
+}
+.canvas-container {
+    width: 100%; /* Ширина контейнера 100% */
+    height: auto; /* Высота авто для адаптивности */
+    display: flex; /* Используем flexbox для центрирования */
+    justify-content: center; /* Центрируем по горизонтали */
+    margin: 0px;
+    padding: 0px;
+}
 .sidebar {
     position: absolute; /* Абсолютное позиционирование */
     top: 0; /* Расположить вверху */
@@ -376,6 +388,7 @@ label {
 h1 {
     text-align: center; /* Выравнивание заголовка по центру */
     color: #333; /* Цвет заголовка */
+    margin-top: 0px;
 }
 .back-button {
     display: inline-block;
