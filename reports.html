@@ -21,6 +21,10 @@
                 <option value="">-- Выберите группу --</option>
             </select>
         </div>
+        <div class="report-type-container">
+            <input type="radio" value="group" name="report-type" class="report-type" checked>По группе
+            <input type="radio" value="student" name="report-type" class="report-type">По студенту
+        </div>
         <button id="generate-report" class="button">Сгенерировать отчет</button>
         <canvas id="average-grade-chart" width="400" height="200" hidden></canvas>
     </div>

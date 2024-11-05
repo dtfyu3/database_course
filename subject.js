@@ -36,7 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = 'auth/register.html';
         return;
     }
-
+    document.querySelector('.back-button').addEventListener('click',()=>{
+        window.localStorage.removeItem("currentSubjectId");
+        history.back();
+    });
     getGroups();
     function checkAuth() {
         fetch("api/api.php?get_action=checkAuth", {

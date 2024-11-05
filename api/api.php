@@ -131,7 +131,7 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
             }
         }
         $response['journal'] = $journal;
-        $response ['success'] = true;
+        $response['success'] = true;
     } catch (Exception $e) {
         $response['error'] = $e->getMessage();
     }
@@ -139,12 +139,13 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
 }
 
 
-function getGroupsForSubject($teacher_id, $subject){
+function getGroupsForSubject($teacher_id, $subject)
+{
     $conn = getDbConnection();
     $response = ['success' => false];
-    try{
+    try {
         $stmt = $conn->prepare('select g.id from `groups` g join subject_groups sg on sg.group_id = g.id join subjects s on sg.subject_id = s.id where s.name = ? and teacher_id = ?');
-        $stmt->bind_param('si', $subject,$teacher_id);
+        $stmt->bind_param('si', $subject, $teacher_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $groups = array();
@@ -154,39 +155,40 @@ function getGroupsForSubject($teacher_id, $subject){
             ];
         }
         $response['groups'] = $groups;
-        $response ['success'] = true;
-    }
-    catch (Exception $e) {
+        $response['success'] = true;
+    } catch (Exception $e) {
         $response['error'] = $e->getMessage();
-        
     }
     echo json_encode($response);
 }
-//avg
-//
 
-function getAvg($group_id, $subject){
+function getAvg($group_id, $subject, $type)
+{
     $conn = getDbConnection();
     $response = ['success' => false];
-    try{
-        $stmt = $conn->prepare('select s.group_id, AVG(j.grade) AS avg from students s join grades_journal j on s.id = j.student_id join classes c on j.class_id = c.id join subjects su on c.subject_id = su.id
-        where su.name = ? and s.group_id = ? group by s.group_id');
-        $stmt->bind_param('ss', $subject,$group_id);
+    try {
+        if ($type == 'group') {
+            $stmt = $conn->prepare('select s.group_id, AVG(j.grade) AS avg from students s join grades_journal j on s.id = j.student_id join classes c on j.class_id = c.id join subjects su on c.subject_id = su.id
+            where su.name = ? and s.group_id = ? group by s.group_id');
+            $stmt->bind_param('ss', $subject, $group_id);
+        } elseif ($type == 'student') {
+            $stmt = $conn->prepare('select FIO, COALESCE(avg(j.grade),0) as avg from students s left join grades_journal j on s.id = j.student_id left join classes c on j.class_id = c.id left join subjects su on c.subject_id = su.id
+            where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO ');
+            $stmt->bind_param('ss', $group_id, $subject);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $avg = array();
         while ($row = $result->fetch_assoc()) {
             $avg[] = [
-                'group' => $row['group_id'],
-                'avg'=> $row['avg']
+                "$type" => ($type == 'group' ? $row['group_id']: $row['FIO']),
+                'avg' => $row['avg']
             ];
         }
         $response['avg'] = $avg;
-        $response ['success'] = true;
-    }
-    catch (Exception $e) {
+        $response['success'] = true;
+    } catch (Exception $e) {
         $response['error'] = $e->getMessage();
-        
     }
     echo json_encode($response);
 }
@@ -197,8 +199,8 @@ if (isset($_GET['get_action'])) $get_action = $_GET['get_action'];
 if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
     elseif ($get_action == 'checkAuth') checkAuth($data['teacher_id'], $data['user_id']);
-    elseif ($get_action =='getGroupsForSubject') getGroupsForSubject($data['teacher_id'],$data['subject']);
-    elseif($get_action == 'getAvg') getAvg($data['group_id'],$data['subject']);
+    elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
+    elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type']);
     elseif ($get_action == 'getSubjectGroups') {
         if (isset($data['teacher_id']) && isset($data['subject_id']))
             getSubjectGroups($data['teacher_id'], $data['subject_id']);

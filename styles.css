@@ -330,6 +330,11 @@ input[type="radio"] {
 #reports:hover {
     background-color: #45a049; /* Темнее при наведении */
 }
+.report-type-container{
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 10px;
+}
 .sidebar {
     position: absolute; /* Абсолютное позиционирование */
     top: 0; /* Расположить вверху */

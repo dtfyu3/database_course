@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     subjects_list.addEventListener('change', pick);
     const generatebtn = document.getElementById('generate-report');
     generatebtn.addEventListener('click', generate);
+    let radios =  document.getElementsByName('report-type');
+    let avgChart;
 
     getSubjects();
 
@@ -12,17 +14,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if (groups_list.value != '' && subjects_list.value != '') {
             const groupId = groups_list.value;
             const subject = subjects_list.value;
+            if(avgChart) avgChart.destroy();
             getAvg(groupId, subject);
         }
     }
 
     function getAvg(groupId, subject) {
+        let type;
+        for (let radio of radios) {
+            if (radio.checked) {
+                type = radio.value;
+                break; 
+            }
+        }
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api/api.php?get_action=getAvg', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             group_id: groupId,
             subject: subject,
+            type: type
         }));
 
         xhr.onload = function () {
@@ -30,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const response = JSON.parse(xhr.response);
                     const result = response['avg'];
-                    const groups = result.map(item => item.group);
+                    const groups = result.map(item => item[`${type}`]);
                     const averages = result.map(item => parseFloat(item.avg));
                     createChart(groups, averages);
 
@@ -44,10 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const ctx = document.getElementById('average-grade-chart').getContext('2d');
         ctx.hidden = false;
         
-        const avgChart = new Chart(ctx, {
+        avgChart = new Chart(ctx, {
             type: 'bar', // Вы можете использовать 'bar', 'line', 'pie' и другие типы графиков
             data: {
-                labels: groups, // Группы как метки по оси X
+                labels: groups,
                 datasets: [{
                     label: 'Средний балл',
                     data: averages, // Средние баллы как данные для графика

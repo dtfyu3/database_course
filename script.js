@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             title.textContent = element.name;
             card.appendChild(title);
             card.addEventListener("click", () => {
+                window.localStorage.setItem("currentSubjectId", element.id);
                 window.location.href = `subject.html?subject_id=${element.id}`;
             });
             subjectsGrid.appendChild(card);
