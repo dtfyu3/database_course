@@ -1,21 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
     const userId = window.localStorage.getItem("userId");
     const groups_list = document.getElementById('groups-list');
+    groups_list.disabled = true;
     const subjects_list = document.getElementById('subjects-list');
     subjects_list.addEventListener('change', pick);
     const generatebtn = document.getElementById('generate-report');
     generatebtn.addEventListener('click', generate);
     let radios = document.getElementsByName('report-type');
+    radios.forEach(radio=>{radio.addEventListener('change', radioTypeChanged)});
+    let report_type;
     let avgChart;
-
     getSubjects();
-
+    function radioTypeChanged(event) {
+        report_type = event.target.value;
+        if (report_type === 'group') groups_list.disabled = true;
+        else groups_list.disabled = false;
+    }
     function generate() {
-        if (groups_list.value != '' && subjects_list.value != '') {
-            const groupId = groups_list.value;
-            const subject = subjects_list.value;
-            if (avgChart) avgChart.destroy();
-            getAvg(groupId, subject);
+        if (report_type === 'student') {
+            if (groups_list.value != '' && subjects_list.value != '') {
+                const groupId = groups_list.value;
+                const subject = subjects_list.value;
+                if (avgChart) avgChart.destroy();
+                getAvg(groupId, subject);
+            }
+        }
+        else {
+            if (subjects_list.value != '') {
+                const subject = subjects_list.value;
+                if (avgChart) avgChart.destroy();
+                getAvg(null, subject);
+            }
         }
     }
 
@@ -82,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     x: {
                         ticks: {
-                           maxRotation: maxRotation, // Угол наклона, изменяющийся в зависимости от устройства
+                            maxRotation: maxRotation, // Угол наклона, изменяющийся в зависимости от устройства
                             minRotation: maxRotation // Угол наклона, изменяющийся в зависимости от устройства
                         }
                     },
@@ -137,6 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function fillList(list, values, name) {
+        if(name === 'group' && list.options.length > 1){
+            while(list.options.length > 1) list.remove(1);
+        }
         values.forEach(element => {
             const option = document.createElement("option");
             option.textContent = element[name];

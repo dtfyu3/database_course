@@ -169,8 +169,8 @@ function getAvg($group_id, $subject, $type)
     try {
         if ($type == 'group') {
             $stmt = $conn->prepare('select s.group_id, AVG(j.grade) AS avg from students s join grades_journal j on s.id = j.student_id join classes c on j.class_id = c.id join subjects su on c.subject_id = su.id
-            where su.name = ? and s.group_id = ? group by s.group_id');
-            $stmt->bind_param('ss', $subject, $group_id);
+            where su.name = ? group by s.group_id');
+            $stmt->bind_param('s', $subject);
         } elseif ($type == 'student') {
             $stmt = $conn->prepare('select FIO, COALESCE(avg(j.grade),0) as avg from students s left join grades_journal j on s.id = j.student_id left join classes c on j.class_id = c.id left join subjects su on c.subject_id = su.id
             where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO ');
