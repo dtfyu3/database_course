@@ -162,28 +162,52 @@ function getGroupsForSubject($teacher_id, $subject)
     echo json_encode($response);
 }
 
-function getAvg($group_id, $subject, $type)
+function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null)
 {
     $conn = getDbConnection();
     $response = ['success' => false];
+    // echo($begin_date);
     try {
         if ($type == 'group') {
-            $stmt = $conn->prepare('select s.group_id, AVG(j.grade) AS avg from students s join grades_journal j on s.id = j.student_id join classes c on j.class_id = c.id join subjects su on c.subject_id = su.id
-            where su.name = ? group by s.group_id');
-            $stmt->bind_param('s', $subject);
+            if (is_null($begin_date) && is_null($end_date)) {
+                $stmt = $conn->prepare('select s.group_id, AVG(j.grade) AS avg from students s join grades_journal j on s.id = j.student_id join classes c on j.class_id = c.id join subjects su on c.subject_id = su.id
+                where su.name = ? group by s.group_id');
+                $stmt->bind_param('s', $subject);
+            } else {
+                $stmt = $conn->prepare("SELECT s.group_id, DATE_FORMAT(c.date, '%Y-%m') AS month, AVG(gj.grade) AS avg FROM grades_journal gj JOIN students s ON gj.student_id = s.id JOIN classes c ON gj.class_id = c.id 
+                WHERE c.date BETWEEN ? AND ? GROUP BY s.group_id,DATE_FORMAT(c.date, '%Y-%m')ORDER BY month;");
+                $stmt->bind_param('ss', $begin_date, $end_date);
+            }
         } elseif ($type == 'student') {
-            $stmt = $conn->prepare('select FIO, COALESCE(avg(j.grade),0) as avg from students s left join grades_journal j on s.id = j.student_id left join classes c on j.class_id = c.id left join subjects su on c.subject_id = su.id
-            where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO ');
-            $stmt->bind_param('ss', $group_id, $subject);
+            if (!is_null($begin_date) && !is_null($end_date)) {
+                $stmt = $conn->prepare("SELECT s.FIO, DATE_FORMAT(c.date, '%Y-%m') AS month, COALESCE(AVG(j.grade), 0) AS avg FROM students s LEFT JOIN grades_journal j ON s.id = j.student_id LEFT JOIN classes c ON j.class_id = c.id
+                LEFT JOIN subjects su ON c.subject_id = su.id WHERE s.group_id = ? AND su.name = ? AND c.date BETWEEN ? AND ? GROUP BY s.FIO, DATE_FORMAT(c.date, '%Y-%m') ORDER BY s.FIO, month;");
+                $stmt->bind_param('ssss', $group_id, $subject, $begin_date, $end_date);
+            }
+            else{
+                $stmt = $conn->prepare('select FIO, COALESCE(avg(j.grade),0) as avg from students s left join grades_journal j on s.id = j.student_id left join classes c on j.class_id = c.id left join subjects su on c.subject_id = su.id
+                where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO ');
+                $stmt->bind_param('ss', $group_id, $subject);
+            }
         }
         $stmt->execute();
         $result = $stmt->get_result();
         $avg = array();
-        while ($row = $result->fetch_assoc()) {
-            $avg[] = [
-                "$type" => ($type == 'group' ? $row['group_id']: $row['FIO']),
-                'avg' => $row['avg']
-            ];
+        if (!is_null($begin_date) && !is_null($end_date)) {
+            while ($row = $result->fetch_assoc()) {
+                $avg[] = [
+                    'month' => $row['month'],
+                    ($type == 'group'? 'group':'FIO') => ($type == 'group' ? $row['group_id'] : $row['FIO']),
+                    'avg' => $row['avg']
+                ];
+            }
+        } else {
+            while ($row = $result->fetch_assoc()) {
+                $avg[] = [
+                    "$type" => ($type == 'group' ? $row['group_id'] : $row['FIO']),
+                    'avg' => $row['avg']
+                ];
+            }
         }
         $response['avg'] = $avg;
         $response['success'] = true;
@@ -200,7 +224,7 @@ if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
     elseif ($get_action == 'checkAuth') checkAuth($data['teacher_id'], $data['user_id']);
     elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
-    elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type']);
+    elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'],$data['begin_date'],$data['end_date']);
     elseif ($get_action == 'getSubjectGroups') {
         if (isset($data['teacher_id']) && isset($data['subject_id']))
             getSubjectGroups($data['teacher_id'], $data['subject_id']);
