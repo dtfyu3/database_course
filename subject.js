@@ -204,60 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
             counter++;
             tbody.appendChild(row);
         }
-
-
-
-
-
-        // journal.forEach(journal => {
-        //     let row = document.createElement("tr");
-        //     let td = document.createElement("td");
-        //     td.appendChild(document.createTextNode(counter)); //№
-        //     row.appendChild(td);
-
-        //     td = document.createElement("td");
-        //     td.appendChild(document.createTextNode(journal.student)); //fio
-        //     row.appendChild(td);
-        //     if (journal_type == 'grades') {
-        //         students.forEach(element => {
-        //             let td = document.createElement("td");
-        //             let grade = journal.grade == null ? '-' : journal.grade;
-        //             td.appendChild(document.createTextNode(grade));
-        //             td.classList.add('grade');
-        //             let span = document.createElement("span");
-        //             span.classList.add('tooltip');
-        //             span.textContent = 'Изменить';
-        //             td.appendChild(span);
-        //             row.appendChild(td);
-        //         });
-        //     }
-        //     else {
-        //         students.forEach(element => {
-        //             let td = document.createElement("td");
-        //             let attendance = journal.status == 'Присутствует' ? 'present' : 'absent';
-        //             if (attendance == 'absent') td.appendChild(document.createTextNode("Н"));
-        //             td.classList.add('attendance')
-        //             td.classList.add(`${attendance}`);
-        //             if (journal.remark) {
-        //                 td.dataset['remark'] = journal.remark;
-        //                 td.classList.add('remarked');
-        //                 let span = document.createElement("span");
-        //                 span.classList.add("icon");
-        //                 span.textContent = '!';
-        //                 td.appendChild(span);
-        //             }
-        //             let span = document.createElement("span");
-        //             span.classList.add('tooltip');
-        //             span.textContent = 'Изменить';
-        //             td.appendChild(span);
-        //             row.appendChild(td);
-        //         });
-        //     }
-        //     counter++;
-        //     tbody.appendChild(row);
-        // });
-
-        // thead.appendChild(tr);
         table.appendChild(thead);
         table.appendChild(tbody);
         document.querySelector('.table-container').prepend(table);
