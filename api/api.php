@@ -78,7 +78,7 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
     $conn = getDbConnection();
     $response = ['success' => false];
     try {
-        $stmt = $conn->prepare("select date from classes left join subjects s on s.id = classes.subject_id where classes.subject_id = ? and s.teacher_id = ? and classes.group_id = ? ");
+        $stmt = $conn->prepare("select date from classes left join subjects s on s.id = classes.subject_id where classes.subject_id = ? and s.teacher_id = ? and classes.group_id = ? order by date ");
         $stmt->bind_param('iis', $subject_id, $teacher_id, $group_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -97,17 +97,24 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
             $stmt->bind_param('sii', $group_id, $subject_id, $teacher_id);
             $stmt->execute();
             $result = $stmt->get_result();
-            $journal = array();
+            $studentsData = [];
             while ($row = $result->fetch_assoc()) {
-                $journal[] = [
+                $stud_name = $row['student'];
+                if (!isset($studentsData[$stud_name])) {
+                    $studentsData[$stud_name] = [
+                        'student' => $row['student'],
+                        'grades' => []
+                    ];
+                }
+                $studentsData[$stud_name]['grades'][] = [
                     'date' => $row['date'],
                     'class' => $row['class_id'],
                     'class_type' => $row['class_type'],
-                    'student_id' => $row['student_id'],
-                    'student' => $row['student'],
                     'grade' => $row['grade'],
-                    'grade_type' => $row['grade_type'],
+                    'subject_id' => $row['subject_id'],
+                    'grade_type' => $row['grade_type']
                 ];
+                $response['students'] = $studentsData;
             }
         } else {
             $stmt = $conn->prepare("select a.FIO as student, a.student_id, b.journal_id,b.class_type,b.status, b.remark, b.class_id, b.subject_id, b.date from (select FIO, id as student_id from students
@@ -117,20 +124,24 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
             $stmt->bind_param('sii', $group_id, $subject_id, $teacher_id);
             $stmt->execute();
             $result = $stmt->get_result();
-            $journal = array();
+            $studentsData = [];
             while ($row = $result->fetch_assoc()) {
-                $journal[] = [
+                $stud_name = $row['student'];
+                if (!isset($studentsData[$stud_name])) {
+                    $studentsData[$stud_name] = [
+                        'student' => $row['student'],
+                    ];
+                }
+                $studentsData[$stud_name]['attendance'][] = [
                     'date' => $row['date'],
                     'class' => $row['class_id'],
                     'class_type' => $row['class_type'],
-                    'student_id' => $row['student_id'],
-                    'student' => $row['student'],
                     'status' => $row['status'],
                     'remark' => $row['remark'],
                 ];
             }
         }
-        $response['journal'] = $journal;
+        $response['students'] = $studentsData;
         $response['success'] = true;
     } catch (Exception $e) {
         $response['error'] = $e->getMessage();

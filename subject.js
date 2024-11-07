@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = 'auth/register.html';
         return;
     }
-    document.querySelector('.back-button').addEventListener('click',()=>{
+    document.querySelector('.back-button').addEventListener('click', () => {
         window.localStorage.removeItem("currentSubjectId");
         history.back();
     });
@@ -103,9 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const response = JSON.parse(xhr.response);
-                        const journal = response['journal'];
                         const classes = response['classes'];
-                        makeJournalTable(classes, journal);
+                        const students = response['students'];
+                        makeJournalTable(classes, students);
 
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function makeJournalTable(classes, journal) {
+    function makeJournalTable(classes, students) {
         let tableToRemove = document.querySelector('table');
         if (tableToRemove != null) tableToRemove.remove();
         if (document.querySelector('.journal-type-header-container')) document.querySelector('.journal-type-header-container').remove();
@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         thead.appendChild(firstrow);
         const tbody = document.createElement("tbody");
         let counter = 1;
+
         classes.forEach(element => {
             let th = document.createElement("th");
             const [year, month, day] = element.date.split("-");
@@ -149,37 +150,43 @@ document.addEventListener("DOMContentLoaded", () => {
             th.appendChild(span);
             firstrow.appendChild(th);
         });
-        journal.forEach(journal => {
+
+
+
+        for (const student of Object.values(students)) {
             let row = document.createElement("tr");
             let td = document.createElement("td");
             td.appendChild(document.createTextNode(counter)); //№
             row.appendChild(td);
-
             td = document.createElement("td");
-            td.appendChild(document.createTextNode(journal.student)); //fio
+            td.appendChild(document.createTextNode(student.student)) //fio
             row.appendChild(td);
             if (journal_type == 'grades') {
-                classes.forEach(element => {
+                classes.forEach(classes => {
                     let td = document.createElement("td");
-                    let grade = journal.grade == null ? '-' : journal.grade;
+                    const gradeObj = student.grades.find(grade => grade.date === classes.date);
+                    let grade = gradeObj ? gradeObj.grade : '-';
                     td.appendChild(document.createTextNode(grade));
                     td.classList.add('grade');
+                    td.dataset['grade'] = isNaN(grade) ? null : grade;
                     let span = document.createElement("span");
                     span.classList.add('tooltip');
                     span.textContent = 'Изменить';
                     td.appendChild(span);
                     row.appendChild(td);
-                });
+
+                })
             }
             else {
-                classes.forEach(element => {
+                classes.forEach(classes => {
                     let td = document.createElement("td");
-                    let attendance = journal.status == 'Присутствует' ? 'present' : 'absent';
+                    const attendanceObj = student.attendance.find(att => att.date === classes.date);
+                    let attendance = attendanceObj ? (attendanceObj.status === 'Присутствует' ? 'present': 'absent'): 'absent' ;
                     if (attendance == 'absent') td.appendChild(document.createTextNode("Н"));
                     td.classList.add('attendance')
                     td.classList.add(`${attendance}`);
-                    if (journal.remark) {
-                        td.dataset['remark'] = journal.remark;
+                    if (attendanceObj && attendanceObj.remark) {
+                        td.dataset['remark'] = attendanceObj.remark;
                         td.classList.add('remarked');
                         let span = document.createElement("span");
                         span.classList.add("icon");
@@ -191,11 +198,64 @@ document.addEventListener("DOMContentLoaded", () => {
                     span.textContent = 'Изменить';
                     td.appendChild(span);
                     row.appendChild(td);
-                });
+                })
             }
+
             counter++;
             tbody.appendChild(row);
-        });
+        }
+
+
+
+
+
+        // journal.forEach(journal => {
+        //     let row = document.createElement("tr");
+        //     let td = document.createElement("td");
+        //     td.appendChild(document.createTextNode(counter)); //№
+        //     row.appendChild(td);
+
+        //     td = document.createElement("td");
+        //     td.appendChild(document.createTextNode(journal.student)); //fio
+        //     row.appendChild(td);
+        //     if (journal_type == 'grades') {
+        //         students.forEach(element => {
+        //             let td = document.createElement("td");
+        //             let grade = journal.grade == null ? '-' : journal.grade;
+        //             td.appendChild(document.createTextNode(grade));
+        //             td.classList.add('grade');
+        //             let span = document.createElement("span");
+        //             span.classList.add('tooltip');
+        //             span.textContent = 'Изменить';
+        //             td.appendChild(span);
+        //             row.appendChild(td);
+        //         });
+        //     }
+        //     else {
+        //         students.forEach(element => {
+        //             let td = document.createElement("td");
+        //             let attendance = journal.status == 'Присутствует' ? 'present' : 'absent';
+        //             if (attendance == 'absent') td.appendChild(document.createTextNode("Н"));
+        //             td.classList.add('attendance')
+        //             td.classList.add(`${attendance}`);
+        //             if (journal.remark) {
+        //                 td.dataset['remark'] = journal.remark;
+        //                 td.classList.add('remarked');
+        //                 let span = document.createElement("span");
+        //                 span.classList.add("icon");
+        //                 span.textContent = '!';
+        //                 td.appendChild(span);
+        //             }
+        //             let span = document.createElement("span");
+        //             span.classList.add('tooltip');
+        //             span.textContent = 'Изменить';
+        //             td.appendChild(span);
+        //             row.appendChild(td);
+        //         });
+        //     }
+        //     counter++;
+        //     tbody.appendChild(row);
+        // });
 
         // thead.appendChild(tr);
         table.appendChild(thead);
