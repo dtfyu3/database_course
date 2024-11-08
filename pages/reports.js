@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/api.php?get_action=getAvg', true);
+        xhr.open('POST', '../api/api.php?get_action=getAvg', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             group_id: groupId,
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const subject = event.currentTarget.value;
         if (subject != "" && subject != null && subject != undefined) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'api/api.php?get_action=getGroupsForSubject', true);
+            xhr.open('POST', '../api/api.php?get_action=getGroupsForSubject', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({
                 teacher_id: window.localStorage.getItem("teacherId"),
@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function getSubjects() {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/api.php?get_action=getSubjects', true);
+        xhr.open('POST', '../api/api.php?get_action=getSubjects', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             user_id: userId

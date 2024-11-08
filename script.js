@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const avatarIcon = document.getElementById('avatarIcon');
     const subjectsGrid = document.getElementById("subjects");
     const teacherId = window.localStorage.getItem("teacherId");
-    document.getElementById('reports').addEventListener('click',() => {window.location.href = 'reports.html';});
+    document.getElementById('reports').addEventListener('click',() => {window.location.href = '/pages/reports.html';});
     if (!window.localStorage.getItem("userId")) window.location.href = 'auth/register.html';
     else {
         userId = window.localStorage.getItem("userId");
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
             card.appendChild(title);
             card.addEventListener("click", () => {
                 window.localStorage.setItem("currentSubjectId", element.id);
-                window.location.href = `subject.html?subject_id=${element.id}`;
+                window.location.href = `pages/subject.html?subject_id=${element.id}`;
             });
             subjectsGrid.appendChild(card);
         });

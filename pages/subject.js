@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function getGroups() {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/api.php?get_action=getSubjectGroups', true);
+        xhr.open('POST', '../api/api.php?get_action=getSubjectGroups', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             teacher_id: window.localStorage.getItem("teacherId"),
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const group = event.currentTarget.value;
         if (group != "" && group != null && group != undefined) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'api/api.php?get_action=getJournal', true);
+            xhr.open('POST', '../api/api.php?get_action=getJournal', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({
                 teacher_id: window.localStorage.getItem("teacherId"),
@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const date = `${day}.${month}`;
             th.appendChild(document.createTextNode(date));
             th.classList.add('class-date');
+            th.dataset['date'] = element.date;
             let span = document.createElement("span");
             span.classList.add('tooltip');
             span.textContent = 'Изменить';
@@ -181,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 classes.forEach(classes => {
                     let td = document.createElement("td");
                     const attendanceObj = student.attendance.find(att => att.date === classes.date);
-                    let attendance = attendanceObj ? (attendanceObj.status === 'Присутствует' ? 'present': 'absent'): 'absent' ;
+                    let attendance = attendanceObj ? (attendanceObj.status === 'Присутствует' ? 'present' : 'absent') : 'absent';
                     if (attendance == 'absent') td.appendChild(document.createTextNode("Н"));
                     td.classList.add('attendance')
                     td.classList.add(`${attendance}`);
@@ -211,8 +212,110 @@ document.addEventListener("DOMContentLoaded", () => {
         export_button.disabled = false;
         export_button.hidden = false;
 
+        document.querySelectorAll('.attendance, .grade, .class-date').forEach(element => {
+            element.addEventListener('click', pressTableCell);
+        });
     }
 
+    function pressTableCell(event) {
+        const target = event.currentTarget;
+        const type = target.className;
+        const r = target.closest('tr');
+        const student = r.childNodes[1].innerText;
+        const attendanceOrGrade = journal_type === 'grades' ? target.dataset['grade'] : target.classList[target.classList.length - 1];
+        let date;
+        const find = Array.from(r.children).findIndex(child => child === target);
+        if (find) { date = document.querySelector('thead tr').childNodes[find].dataset['date']; }
+        const modal = document.querySelector('.modal');
+        if (modal) modal.remove();
+        createForm(type, date, student, attendanceOrGrade);
+    }
+
+    function createForm(type, selectedDate, student, attendanceOrGrade) {
+        if(document.querySelector('.modal')) document.querySelector('.modal').remove();
+        const div = document.createElement("div");
+        div.classList.add('modal');
+        div.style.display = 'block';
+        const content = document.createElement("div");
+        content.classList.add('modal-content');
+        const span = document.createElement("span");
+        span.classList.add('close');
+        span.innerHTML = '&times;';
+        const header = document.createElement("h2");
+        header.innerHTML = 'Редактировать запись';
+        const form = document.createElement("form");
+        form.name = 'edit';
+        const class_date = document.createElement("input");
+        class_date.type = "date";
+        class_date.value = selectedDate;
+        class_date.disabled = true;
+        const class_label = document.createElement("label");
+        class_label.textContent = 'Дата занятия';
+        const stud_label = document.createElement("label");
+        stud_label.textContent = 'Студент';
+        const stud_input = document.createElement("input");
+        stud_input.id = 'student-input'
+        stud_input.type = 'text';
+        stud_input.value = student;
+        stud_input.disabled = true;
+        form.id = 'editForm';
+        let label = document.createElement("label");
+        label.textContent = type === 'grade' ? 'Оценка' : 'Посещение';
+        let select = document.createElement("select");
+        select.name = journal_type;
+        select.required = true;
+        if (journal_type === 'grades') {
+            [2, 3, 4, 5].forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+                if(value === Number(attendanceOrGrade)) option.selected = true;
+            });
+        } else if (journal_type === 'attendance') {
+            ['Присутствует', 'Отсутствует'].forEach(value => {
+                const option = document.createElement('option');
+                option.value = value === 'Присутствует' ? 'present' : 'absent';
+                option.textContent = value;
+                select.appendChild(option);
+                if(option.value === attendanceOrGrade) option.selected = true;
+            });
+        }
+        form.appendChild(header);
+        form.appendChild(class_label);
+        form.appendChild(class_date);
+        form.appendChild(stud_label);
+        form.appendChild(stud_input);
+        form.appendChild(label);
+        form.appendChild(select);
+        if(journal_type === 'attendance')
+        {
+            label = document.createElement("label");
+            label.textContent = 'Примечание';
+            input = document.createElement("input");
+            input.name = 'remark';
+            form.appendChild(label);
+            form.appendChild(input);
+        }
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Сохранить';
+        form.appendChild(submitButton);
+        form.appendChild(span);
+        content.appendChild(form);
+        div.appendChild(content);
+        span.addEventListener('click', () => {
+            document.querySelector('.modal').style.display = 'none';
+        });
+        document.body.appendChild(div);
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            let form = document.forms.edit;
+            const formData = new FormData(form);
+            console.log(formData.get('student-input')); ///////////////////////////////////////////////////////////////////////
+            div.remove();
+        })
+    }
     async function exportTable() {
         try {
             let table;
