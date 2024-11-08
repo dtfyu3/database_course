@@ -370,6 +370,7 @@ select option {
     margin: 0 auto;
     text-align: center;
     margin-top: 10px;
+    user-select: none;
 }
 
 .journal-type-container div {
