@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const avatarIcon = document.getElementById('avatarIcon');
     const subjectsGrid = document.getElementById("subjects");
     const teacherId = window.localStorage.getItem("teacherId");
-    document.getElementById('reports').addEventListener('click',() => {window.location.href = '/pages/reports.html';});
+    document.getElementById('reports').addEventListener('click', () => { window.location.href = '/pages/reports.html'; });
     if (!window.localStorage.getItem("userId")) window.location.href = 'auth/register.html';
     else {
         userId = window.localStorage.getItem("userId");
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = JSON.parse(xhr.response);
                     subjects = response['subjects'];
-                    window.localStorage.setItem("teacherId",response['teacher_id'])
+                    window.localStorage.setItem("teacherId", response['teacher_id'])
                     addSubjectCards(subjects);
                 }
                 catch (e) { console.error('Error parsing JSON: ', e); }
@@ -44,18 +44,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addSubjectCards(subjects) {
-        subjects.forEach(element => {
+        for (const element of Object.values(subjects)) {
             const card = document.createElement("div");
             card.classList.add("subject-card");
             const title = document.createElement("span");
+            title.classList.add('subject-name-span');
             title.textContent = element.name;
+            const group_span = document.createElement("span");
+            group_span.classList.add('subject-groups-span');
+            if (Array.isArray(element.groups) && element.groups.length > 0) {
+                group_span.textContent = "Группы: " + element.groups.join(", ");
+            }
             card.appendChild(title);
+            card.appendChild(group_span);
             card.addEventListener("click", () => {
                 window.localStorage.setItem("currentSubjectId", element.id);
-                window.location.href = `pages/subject.html?subject_id=${element.id}`;
+                window.location.href = 'pages/subject.html';
             });
             subjectsGrid.appendChild(card);
-        });
+        }
     }
 
 });
