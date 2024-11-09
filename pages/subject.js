@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const teacherId = window.localStorage.getItem("teacherId");
     const userId = window.localStorage.getItem("userId");
-    const subjectId = params.get("subject_id");
+    // const subjectId = params.get("subject_id");
+    const subjectId = window.localStorage.getItem("currentSubjectId");
     const logout = document.getElementById('logout');
     let journal_type;
     const groupsList = document.querySelector('.groups-list');
@@ -41,22 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         history.back();
     });
     getGroups();
-    function checkAuth() {
-        fetch("api/api.php?get_action=checkAuth", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ teacher_id: teacherId, user_id: userId })
-        }).then(response => {
-            if (!response.ok) {
-                window.location.href = 'auth/register.html';
-            }
-        }).catch(error => {
-            console.error("Ошибка авторизации:", error);
-            window.location.href = 'auth/register.html';
-        });
-    }
     function getGroups() {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '../api/api.php?get_action=getSubjectGroups', true);
