@@ -11,15 +11,6 @@ function getDbConnection()
     }
     return $conn;
 }
-function checkAuth($teacher_id, $user_id)
-{
-    if (isset($teacher_id) && isset($user_id) && !is_null($teacher_id) && !is_null($user_id))
-        http_response_code(200);
-    else {
-        http_response_code(200);
-        exit;
-    }
-}
 function getSubjects($user_id)
 {
     $conn = getDbConnection();
@@ -31,16 +22,25 @@ function getSubjects($user_id)
         $result =  $stmt->get_result()->fetch_assoc()['teacher_id'];
         $response['teacher_id'] = $result;
         if (!is_null($result)) {
-            $stmt = $conn->prepare('select * from subjects where teacher_id = ?');
+            $stmt = $conn->prepare('select s.id, s.name, sg.group_id from subjects s left join subject_groups sg on s.id = sg.subject_id where teacher_id = ?');
             $stmt->bind_param('i', $result);
             $stmt->execute();
             $result = $stmt->get_result();
             $subjects = array();
             while ($row = $result->fetch_assoc()) {
-                $subjects[] = [
-                    'id' => $row['id'],
-                    'name' => $row['name']
-                ];
+                $subject = $row['name'];
+                if (!isset($subjects[$subject])) {
+                    $subjects[$subject] = [
+                        'id' => $row['id'],
+                        'name' => $row['name'],
+                    ];
+                }
+                if(!is_null($row['group_id'])){
+                    $subjects[$subject]['groups'][] = [
+                        $row['group_id']
+                    ];
+                }
+                else $subjects[$subject]['groups'] = null;
             }
             $response['success'] = true;
         }
@@ -181,7 +181,6 @@ function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null
 {
     $conn = getDbConnection();
     $response = ['success' => false];
-    // echo($begin_date);
     try {
         if ($type == 'group') {
             if (is_null($begin_date) && is_null($end_date)) {
@@ -287,7 +286,6 @@ $get_action = null;
 if (isset($_GET['get_action'])) $get_action = $_GET['get_action'];
 if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
-    elseif ($get_action == 'checkAuth') checkAuth($data['teacher_id'], $data['user_id']);
     elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
     elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
