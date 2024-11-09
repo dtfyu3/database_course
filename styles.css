@@ -424,27 +424,16 @@ input[type="radio"] {
 
 #reports {
     margin: 10px;
-    /* Отступы для кнопки */
     margin-top: 20px;
     background-color: #4CAF50;
-    /* Зеленый цвет */
     color: white;
-    /* Цвет текста */
     padding: 10px 20px;
-    /* Отступы */
     border: none;
-    /* Без рамки */
     border-radius: 5px;
-    /* Закругленные углы */
     cursor: pointer;
-    /* Указатель при наведении */
     font-size: 16px;
-    /* Размер шрифта */
-    /* width: 100%; Занять всю ширину сайдбара */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    /* Легкая тень для кнопки */
     transition: background-color 0.3s, transform 0.3s;
-    /* Плавный переход цвета фона и трансформации */
     height: fit-content;
 }
 
@@ -466,51 +455,34 @@ input[type="radio"] {
 
 .canvas-container {
     width: 100%;
-    /* Ширина контейнера 100% */
     height: auto;
-    /* Высота авто для адаптивности */
     display: flex;
-    /* Используем flexbox для центрирования */
     justify-content: center;
-    /* Центрируем по горизонтали */
     margin: 0px;
     padding: 0px;
 }
 
 .sidebar {
     position: absolute;
-    /* Абсолютное позиционирование */
     top: 0;
-    /* Расположить вверху */
     left: -180px;
-    /* Начальное скрытое положение */
     width: 200px;
-    /* Ширина колонки */
     height: 100%;
-    /* Полная высота */
     background-color: #f0f0f0;
-    /* Цвет фона колонки */
     transition: left 0.3s;
-    /* Плавный переход для свойства left */
     z-index: 1000;
-    /* Поверх других элементов */
-    /* align-items: center; Вертикальное выравнивание по центру */
     justify-content: center;
     display: flex;
 }
 
 .sidebar:hover {
     left: 0px;
-    /* Полная ширина при наведении */
 }
 
 label {
     display: block;
-    /* Блоковое отображение для меток */
     margin-bottom: 5px;
-    /* Отступ под меткой */
     font-weight: bold;
-    /* Жирный шрифт для меток */
 }
 
 .date-range-container {
@@ -535,35 +507,23 @@ label {
     margin: 0 auto;
     margin-top: 20px;
     display: block;
-    /* Блочное отображение для кнопки */
     padding: 10px;
-    /* Отступы внутри кнопки */
     background-color: #4CAF50;
-    /* Зеленый фон для кнопки */
     color: white;
-    /* Цвет текста */
     border: none;
-    /* Без рамки */
     border-radius: 5px;
-    /* Закругленные углы */
     font-size: 18px;
-    /* Размер шрифта */
     cursor: pointer;
-    /* Указатель при наведении */
     transition: background-color 0.3s;
-    /* Плавный переход цвета фона */
 }
 
 .generate-report:hover {
     background-color: #45a049;
-    /* Темнее при наведении на кнопку */
 }
 
 h1 {
     text-align: center;
-    /* Выравнивание заголовка по центру */
     color: #333;
-    /* Цвет заголовка */
     margin-top: 0px;
 }
 
@@ -604,7 +564,7 @@ h1 {
 
 .subject-name-span {
     display: block;
-    font-size: 35px;
+    font-size: 30px;
     margin-bottom: 20px;
 }
 
