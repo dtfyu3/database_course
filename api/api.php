@@ -35,12 +35,11 @@ function getSubjects($user_id)
                         'name' => $row['name'],
                     ];
                 }
-                if(!is_null($row['group_id'])){
+                if (!is_null($row['group_id'])) {
                     $subjects[$subject]['groups'][] = [
                         $row['group_id']
                     ];
-                }
-                else $subjects[$subject]['groups'] = null;
+                } else $subjects[$subject]['groups'] = null;
             }
             $response['success'] = true;
         }
@@ -80,14 +79,16 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
     $conn = getDbConnection();
     $response = ['success' => false];
     try {
-        $stmt = $conn->prepare("select date from classes left join subjects s on s.id = classes.subject_id where classes.subject_id = ? and s.teacher_id = ? and classes.group_id = ? order by date ");
+        $stmt = $conn->prepare("select classes.id, date, type from classes left join subjects s on s.id = classes.subject_id where classes.subject_id = ? and s.teacher_id = ? and classes.group_id = ? order by date ");
         $stmt->bind_param('iis', $subject_id, $teacher_id, $group_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $classes = array();
         while ($row = $result->fetch_assoc()) {
             $classes[] = [
-                'date' => $row['date']
+                'id' => $row['id'],
+                'date' => $row['date'],
+                'type' => $row['type']
             ];
         }
         $response['classes'] = $classes;
@@ -231,7 +232,7 @@ function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null
     echo json_encode($response);
 }
 
-function updateRecord($student, $subject_id, $date, $type, $value, $remark)
+function updateRecord($student, $subject_id, $date, $class_id,$type, $value, $remark)
 {
     $conn = getDbConnection();
     $response = ['success' => false];
@@ -269,6 +270,35 @@ function updateRecord($student, $subject_id, $date, $type, $value, $remark)
                 $stmt->bind_param('iii', $value, $class_id, $student_id);
                 $stmt->execute();
             }
+        } elseif ($type == 'attendance') {
+            $value = $value == 'present' ? 'Присутствует' : 'Отсутствует';
+            $stmt = $conn->prepare('select j.id from attendance_journal j join students s on j.student_id = s.id join classes c on j.class_id = c.id where s.FIO = ? and c.date = ? and c.subject_id = ?');
+            $stmt->bind_param('ssi', $student, $date, $subject_id);
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_column();
+            if ($result != null) {
+                $sql = "update $type";
+                $sql = $sql . '_journal set status = ?, remark = ? where id = ?';
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('ssi', $value, $remark, $result);
+                $stmt->execute();
+            } else {
+                $stmt = $conn->prepare('select c.id from classes c where c.date = ? and c.subject_id = ?');
+                $stmt->bind_param('si', $date, $subject_id);
+                $stmt->execute();
+                $class_id = $stmt->get_result()->fetch_column();
+                $stmt = $conn->prepare('select s.id from students s where s.FIO = ?');
+                $stmt->bind_param('s', $student);
+                $stmt->execute();
+                $student_id = $stmt->get_result()->fetch_column();
+                $stmt = $conn->prepare('insert into attendance_journal (class_id, student_id, status, remark) values (?,?,?,?)');
+                $stmt->bind_param('iiss', $class_id, $student_id, $value, $remark);
+                $stmt->execute();
+            }
+        } elseif ($type == 'class') {
+            $stmt = $conn->prepare('update classes set type = ? where date = ? and subject_id = ? and id = ?');
+            $stmt->bind_param('ssii', $value, $date, $subject_id, $class_id);
+            $stmt->execute();
         }
     } catch (Exception $e) {
         $conn->rollback();
@@ -288,7 +318,7 @@ if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
     elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
-    elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
+    elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], isset($data['class_id']) ? $data['class_id'] : null, $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
     elseif ($get_action == 'getSubjectGroups') {
         if (isset($data['teacher_id']) && isset($data['subject_id']))
             getSubjectGroups($data['teacher_id'], $data['subject_id']);
