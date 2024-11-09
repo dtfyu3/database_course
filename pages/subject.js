@@ -129,15 +129,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const date = `${day}.${month}`;
             th.appendChild(document.createTextNode(date));
             th.classList.add('class-date');
+            th.dataset['id'] = element.id;
             th.dataset['date'] = element.date;
+            th.dataset['type'] = element.type;
             let span = document.createElement("span");
             span.classList.add('tooltip');
             span.textContent = 'Изменить';
             th.appendChild(span);
             firstrow.appendChild(th);
         });
-
-
 
         for (const student of Object.values(students)) {
             let row = document.createElement("tr");
@@ -200,24 +200,27 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.attendance, .grade, .class-date').forEach(element => {
             element.addEventListener('click', pressTableCell);
         });
+        
     }
 
     function pressTableCell(event) {
         const target = event.currentTarget;
         const type = target.className;
         const r = target.closest('tr');
+        const class_type = target.dataset['type'] || null;
         const remark = target.dataset['remark'] ? target.dataset['remark'] : '';
+        const class_id = target.dataset['id'] || null;
         const student = r.childNodes[1].innerText;
-        const attendanceOrGrade = journal_type === 'grades' ? target.dataset['grade'] : target.classList[target.classList.length - 1];
+        const attendanceOrGrade = journal_type === 'grades' ? target.dataset['grade'] : target.classList[1];
         let date;
         const find = Array.from(r.children).findIndex(child => child === target);
         if (find) { date = document.querySelector('thead tr').childNodes[find].dataset['date']; }
         const modal = document.querySelector('.modal');
         if (modal) modal.remove();
-        createForm(type, date, student, attendanceOrGrade, remark);
+        createForm(type, date, student, attendanceOrGrade, remark, class_type,class_id);
     }
 
-    function createForm(type, selectedDate, student, attendanceOrGrade, remark) {
+    function createForm(type, selectedDate, student, attendanceOrGrade, remark, class_type,class_id) {
         if (document.querySelector('.modal')) document.querySelector('.modal').remove();
         const div = document.createElement("div");
         div.classList.add('modal');
@@ -237,6 +240,16 @@ document.addEventListener("DOMContentLoaded", () => {
         class_date.disabled = true;
         const class_label = document.createElement("label");
         class_label.textContent = 'Дата занятия';
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Сохранить';
+        span.addEventListener('click', () => {
+            document.querySelector('.modal').remove();
+        });
+        form.id = 'editForm';
+        form.appendChild(header);
+        form.appendChild(class_label);
+        form.appendChild(class_date);
         if (type !== 'class-date') {
             const stud_label = document.createElement("label");
             stud_label.textContent = 'Студент';
@@ -245,7 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
             stud_input.type = 'text';
             stud_input.value = student;
             stud_input.disabled = true;
-            form.id = 'editForm';
             let label = document.createElement("label");
             label.textContent = type === 'grade' ? 'Оценка' : 'Посещение';
             let select = document.createElement("select");
@@ -268,9 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (option.value === attendanceOrGrade) option.selected = true;
                 });
             }
-            form.appendChild(header);
-            form.appendChild(class_label);
-            form.appendChild(class_date);
             form.appendChild(stud_label);
             form.appendChild(stud_input);
             form.appendChild(label);
@@ -278,22 +287,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (journal_type === 'attendance') {
                 let label = document.createElement("label");
                 label.textContent = 'Примечание';
-                input = document.createElement("input");
-                input.name = 'remark';
-                input.value = remark;
+                remark_input = document.createElement("input");
+                remark_input.name = 'remark';
+                remark_input.value = remark;
                 form.appendChild(label);
-                form.appendChild(input);
+                form.appendChild(remark_input);
             }
-            const submitButton = document.createElement('button');
-            submitButton.type = 'submit';
-            submitButton.textContent = 'Сохранить';
+
             form.appendChild(submitButton);
             form.appendChild(span);
             content.appendChild(form);
             div.appendChild(content);
-            span.addEventListener('click', () => {
-                document.querySelector('.modal').remove();
-            });
             document.body.appendChild(div);
             form.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -306,9 +310,56 @@ document.addEventListener("DOMContentLoaded", () => {
                     date: selectedDate,
                     type: journal_type,
                     value: select.value,
-                    remark: remark
+                    remark: remark_input.value
                 }));
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const response = JSON.parse(xhr.response);
+                            if (response.success) {
+                                pickGroup(undefined, groupsList.value);
+                            }
+                        }
+                        catch (e) { console.error('Error parsing JSON: ', e); }
+                    }
+                }
+                div.remove();
+            })
+        }
+        else {
+            const label = document.createElement("label");
+            label.textContent = 'Тип занятия';
+            const select = document.createElement("select");
 
+            ['Лекция', 'Практическое занятие'].forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+                if (option.value === class_type) option.selected = true;
+            });
+            form.appendChild(label);
+            form.appendChild(select);
+            form.appendChild(submitButton);
+            form.appendChild(span);
+            content.appendChild(form);
+            div.appendChild(content);
+            document.body.appendChild(div);
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '../api/api.php?get_action=updateRecord', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    subject_id: subjectId,
+                    date: selectedDate,
+                    class_id: class_id,
+                    type: 'class',
+                    value: select.value,
+                    student: null,
+                    remark: null
+                }));
                 xhr.onload = function () {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
