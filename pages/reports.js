@@ -253,11 +253,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (name === 'group' && list.options.length > 1) {
             while (list.options.length > 1) list.remove(1);
         }
-        values.forEach(element => {
+        for(const subject of Object.values(values)){
             const option = document.createElement("option");
-            option.textContent = element[name];
+            option.textContent = subject[name];
             list.appendChild(option);
-        });
+        }
+        // values.forEach(element => {
+        //     const option = document.createElement("option");
+        //     option.textContent = element[name];
+        //     list.appendChild(option);
+        // });
     }
 
 
