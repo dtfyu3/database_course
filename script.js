@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const avatarIcon = document.getElementById('avatarIcon');
     const subjectsGrid = document.getElementById("subjects");
     const teacherId = window.localStorage.getItem("teacherId");
-    document.getElementById('reports').addEventListener('click', () => { window.location.href = '/pages/reports.html'; });
+    document.getElementById('avgreports').addEventListener('click', () => { window.location.href = '/pages/avgreports.html'; });
+    document.getElementById('attreports').addEventListener('click', () => { window.location.href = '/pages/attreports.html'; });
     if (!window.localStorage.getItem("userId")) window.location.href = 'auth/register.html';
     else {
         userId = window.localStorage.getItem("userId");
