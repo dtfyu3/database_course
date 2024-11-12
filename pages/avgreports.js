@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const groups_list = document.getElementById('groups-list');
     groups_list.disabled = true;
     const subjects_list = document.getElementById('subjects-list');
-    subjects_list.addEventListener('change', pick);
+    subjects_list.addEventListener('change', subjectChange);
     const generatebtn = document.getElementById('generate-report');
     generatebtn.addEventListener('click', generate);
     let radios = document.getElementsByName('report-type');
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let endDate;
     let report_type;
     let avgChart;
-    getSubjects();
+    getSubjects(userId, subjects_list);
     function radioTypeChanged(event) {
         report_type = event.target.value;
         if (report_type === 'group') groups_list.disabled = true;
@@ -61,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const response = JSON.parse(xhr.response);
                     const result = response['avg'];
-                    // const groups = result.map(item => item[`${type}`]);
                     const averages = result.map(item => parseFloat(item.avg));
                     createChart(result, averages);
 
@@ -153,46 +152,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        createExportButton();
+        createExportButton(avgChart);
     }
-
-    function createExportButton() {
-        let export_button = document.querySelectorAll('.export-container');
-        if (export_button.length > 0) export_button.forEach(button => { button.remove(); });
-        const div = document.createElement("div");
-        div.classList.add('export-container');
-        const input = document.createElement("input");
-        input.type = 'button';
-        input.value = 'Экспорт Excel';
-        input.classList.add('export');
-        div.appendChild(input);
-        document.body.appendChild(div);
-        div.addEventListener('click', () => {
-            const labels = avgChart.data.labels;
-            const datasets = avgChart.data.datasets;
-            const excelData = [];
-            const headers = [...datasets.map(dataset => dataset.label)];
-            // const headers = [avgChart.data.labels[0], ...avgChart.data.datasets.map(dataset => dataset.label)];
-            excelData.push(headers);
-
-            // Добавляем данные
-            labels.forEach((label, index) => {
-                const row = [label];
-                datasets.forEach(dataset => {
-                    row.push(dataset.data[index]);
-                });
-                excelData.push(row);
-            });
-
-            // Преобразуем данные в формат Excel
-            const ws = XLSX.utils.aoa_to_sheet(excelData); // Преобразование массива в лист
-            const wb = XLSX.utils.book_new(); // Создаем новую книгу
-            XLSX.utils.book_append_sheet(wb, ws, 'Chart Data'); // Добавляем лист в книгу
-            XLSX.writeFile(wb, 'chart_data.xlsx');
-        });
-
+    function subjectChange(){
+        getGroups(window.localStorage.getItem("teacherId"),subjects_list.value,null,groups_list)
     }
-
     function generateColorFromString(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
@@ -204,63 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const a = Math.random().toFixed(2); // Генерация случайной прозрачности от 0 до 1
         return `rgba(${r}, ${g}, ${b}, ${a})`;
         // return '#' + (hash & 0x00FFFFFF).toString(16).padStart(6, '0');
-    }
-    function pick(event) {
-        const subject = event.currentTarget.value;
-        if (subject != "" && subject != null && subject != undefined) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '../api/api.php?get_action=getGroupsForSubject', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({
-                teacher_id: window.localStorage.getItem("teacherId"),
-                subject: subject,
-            }));
-
-            xhr.onload = function () {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        const response = JSON.parse(xhr.response);
-                        const groups = response['groups'];
-                        fillList(groups_list, groups, 'group');
-
-                    }
-                    catch (e) { console.error('Error parsing JSON: ', e); }
-                }
-            }
-        }
-    }
-    function getSubjects() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../api/api.php?get_action=getSubjects', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            user_id: userId
-        }));
-
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const response = JSON.parse(xhr.response);
-                    subjects = response['subjects'];
-                    fillList(subjects_list, subjects, 'name');
-                }
-                catch (e) { console.error('Error parsing JSON: ', e); }
-            }
-        }
-    }
-
-    function fillList(list, values, name) {
-        if (name === 'group' && list.options.length > 1) {
-            while (list.options.length > 1) list.remove(1);
-        }
-        for (const subject of Object.values(values)) {
-            const option = document.createElement("option");
-            option.textContent = subject[name];
-            list.appendChild(option);
-        }
-    }
-
-
+    }   
     window.addEventListener('resize', function () {
         if (avgChart) {
             avgChart.destroy();
