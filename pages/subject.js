@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const teacherId = window.localStorage.getItem("teacherId");
     const userId = window.localStorage.getItem("userId");
-    // const subjectId = params.get("subject_id");
     const subjectId = window.localStorage.getItem("currentSubjectId");
     const logout = document.getElementById('logout');
     let journal_type;
