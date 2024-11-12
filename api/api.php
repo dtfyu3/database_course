@@ -200,7 +200,7 @@ function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null
                 $stmt->bind_param('ssss', $group_id, $subject, $begin_date, $end_date);
             } else {
                 $stmt = $conn->prepare('select FIO, COALESCE(avg(j.grade),0) as avg from students s left join grades_journal j on s.id = j.student_id left join classes c on j.class_id = c.id left join subjects su on c.subject_id = su.id
-                where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO ');
+                where s.group_id = ? and (su.name = ? or c.subject_id IS NULL) group by FIO order by FIO');
                 $stmt->bind_param('ss', $group_id, $subject);
             }
         }
@@ -232,7 +232,7 @@ function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null
     echo json_encode($response);
 }
 
-function updateRecord($student, $subject_id, $date, $class_id,$type, $value, $remark)
+function updateRecord($student, $subject_id, $date, $class_id, $type, $value, $remark)
 {
     $conn = getDbConnection();
     $response = ['success' => false];
@@ -309,7 +309,31 @@ function updateRecord($student, $subject_id, $date, $class_id,$type, $value, $re
     $conn->close();
     echo json_encode($response);
 }
-
+function getAttReport($subject)
+{
+    $conn = getDbConnection();
+    $response['success'] = false;
+    try {
+        $stmt = $conn->prepare("SELECT DATE_FORMAT(c.date, '%Y-%m') as month, COUNT(DISTINCT s.id) as total_students, SUM(CASE WHEN j.status = 'Присутствует' THEN 1 ELSE 0 END) as present, COUNT(DISTINCT s.id) - SUM(CASE WHEN j.status = 'Присутствует' THEN 1 ELSE 0 END) as absent
+    FROM students s JOIN classes c ON c.subject_id = (select id from subjects where name = ?) LEFT JOIN attendance_journal j ON s.id = j.student_id AND c.id = j.class_id WHERE c.date IS NOT NULL GROUP BY month ORDER BY month;");
+        $stmt->bind_param('s', $subject);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $att = array();
+        while ($row = $result->fetch_assoc()) {
+            $att[] = [
+                'month' => $row['month'],
+                'present' => $row['present'],
+                'absent' => $row['absent']
+            ];
+        }
+        $response['att'] = $att;
+        $response['success'] = true;
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
+    }
+    echo json_encode($response);
+}
 $data = json_decode(file_get_contents('php://input'), true);
 $action = null;
 $get_action = null;
@@ -319,6 +343,7 @@ if ($get_action != null) {
     elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
     elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], isset($data['class_id']) ? $data['class_id'] : null, $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
+    elseif ($get_action == 'getAttReport') getAttReport($data['subject']);
     elseif ($get_action == 'getSubjectGroups') {
         if (isset($data['teacher_id']) && isset($data['subject_id']))
             getSubjectGroups($data['teacher_id'], $data['subject_id']);
