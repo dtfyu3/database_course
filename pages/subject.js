@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
     const teacherId = window.localStorage.getItem("teacherId");
     const userId = window.localStorage.getItem("userId");
     const subjectId = window.localStorage.getItem("currentSubjectId");
@@ -32,44 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     );
 
-    if (!teacherId && !userId || document.referrer === '') {
-        window.location.href = 'auth/register.html';
-        return;
-    }
     document.querySelector('.back-button').addEventListener('click', () => {
         window.localStorage.removeItem("currentSubjectId");
         history.back();
     });
-    getGroups();
-    function getGroups() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../api/api.php?get_action=getSubjectGroups', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            teacher_id: window.localStorage.getItem("teacherId"),
-            subject_id: subjectId
-        }));
-
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const response = JSON.parse(xhr.response);
-                    groups = response['groups'];
-                    fillGroupsList(groups)
-
-                }
-                catch (e) { console.error('Error parsing JSON: ', e); }
-            }
-        }
-    }
-    function fillGroupsList(groups) {
-        groups.forEach(element => {
-            const option = document.createElement("option");
-            option.textContent = element.group;
-            groupsList.appendChild(option);
-        });
-    }
-
+    getGroups(window.localStorage.getItem("teacherId"),null,subjectId,groupsList);
     function pickGroup(event, group = null) {
         if (!group) group = event.currentTarget.value;
         if (group != "" && group != null && group != undefined) {
