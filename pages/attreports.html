@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчеты</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../libs/chart.js"></script>
+    <script lang="javascript" src="../libs/xlsx.full.min.js"></script>
+</head>
+<body>
+    <a class="back-button" href="javascript:history.back()">
+        &#8592; Назад
+    </a>
+    <div class="container">
+        <h1>Генерация отчета по посещаемости</h1>
+        <div class="form-group">
+            <select id="subjects-list" class="select">
+                <option value="">-- Выберите предмет --</option>
+            </select>
+        </div>
+        <div style="height: 10px;"></div>
+        <button id="generate-report" class="button">Сгенерировать отчет</button>
+        <div class="canvas-container">
+            <canvas id="average-grade-chart" hidden></canvas>
+        </div>
+    </div>
+    <script src="attreports.js"></script>
+</body>
+</html>
