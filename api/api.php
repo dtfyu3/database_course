@@ -51,19 +51,24 @@ function getSubjects($user_id)
     echo json_encode($response);
 }
 
-function getSubjectGroups($teacher_id, $subject_id)
+function getSubjectGroups($teacher_id, $subject_id, $subject = null)
 {
     $conn = getDbConnection();
     $response = ['success' => false];
     try {
-        $stmt = $conn->prepare('select group_id from subject_groups left join subjects on subject_groups.subject_id = subjects.id where subjects.teacher_id = ? and subject_groups.subject_id = ?');
-        $stmt->bind_param('ii', $teacher_id, $subject_id);
+        if (is_null($subject)) {
+            $stmt = $conn->prepare('select group_id as id from subject_groups left join subjects on subject_groups.subject_id = subjects.id where subjects.teacher_id = ? and subject_groups.subject_id = ?');
+            $stmt->bind_param('ii', $teacher_id, $subject_id);
+        } else {
+            $stmt = $conn->prepare('select g.id from `groups` g join subject_groups sg on sg.group_id = g.id join subjects s on sg.subject_id = s.id where s.name = ? and teacher_id = ?');
+            $stmt->bind_param('si', $subject, $teacher_id);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $groups = array();
         while ($row = $result->fetch_assoc()) {
             $groups[] = [
-                'group' => $row['group_id']
+                'group' => $row['id'],
             ];
         }
         $response['success'] = true;
@@ -153,30 +158,6 @@ function getJournal($teacher_id, $subject_id, $group_id, $type)
     echo json_encode($response);
 }
 
-
-function getGroupsForSubject($teacher_id, $subject)
-{
-    $conn = getDbConnection();
-    $response = ['success' => false];
-    try {
-        $stmt = $conn->prepare('select g.id from `groups` g join subject_groups sg on sg.group_id = g.id join subjects s on sg.subject_id = s.id where s.name = ? and teacher_id = ?');
-        $stmt->bind_param('si', $subject, $teacher_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $groups = array();
-        while ($row = $result->fetch_assoc()) {
-            $groups[] = [
-                'group' => $row['id'],
-            ];
-        }
-        $response['groups'] = $groups;
-        $response['success'] = true;
-    } catch (Exception $e) {
-        $response['error'] = $e->getMessage();
-    }
-    $conn->close();
-    echo json_encode($response);
-}
 
 function getAvg($group_id, $subject, $type, $begin_date = null, $end_date = null)
 {
@@ -340,14 +321,11 @@ $get_action = null;
 if (isset($_GET['get_action'])) $get_action = $_GET['get_action'];
 if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
-    elseif ($get_action == 'getGroupsForSubject') getGroupsForSubject($data['teacher_id'], $data['subject']);
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
     elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], isset($data['class_id']) ? $data['class_id'] : null, $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
     elseif ($get_action == 'getAttReport') getAttReport($data['subject']);
     elseif ($get_action == 'getSubjectGroups') {
-        if (isset($data['teacher_id']) && isset($data['subject_id']))
-            getSubjectGroups($data['teacher_id'], $data['subject_id']);
-        else return http_response_code(403);
+        getSubjectGroups($data['teacher_id'], isset($data['subject_id'])?$data['subject_id']:null, isset($data['subject']) ? $data['subject'] : null);
     } elseif ($get_action == 'getJournal') if (isset($data['teacher_id']) && isset($data['type'])) getJournal($data['teacher_id'], $data['subject_id'], $data['group_id'], $data['type']);
 
     else echo ('Invalid action');
