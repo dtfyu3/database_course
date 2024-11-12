@@ -16,32 +16,15 @@ document.addEventListener('DOMContentLoaded', function () {
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
     }
-    getSubjects();
+    getSubjects(userId, null, response => {
+        subjects = response['subjects'];
+        window.localStorage.setItem("teacherId", response['teacher_id'])
+        addSubjectCards(subjects);
+    });
 
     function logOut() {
         window.localStorage.clear();
         location.reload();
-    }
-
-    function getSubjects() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/api.php?get_action=getSubjects', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            user_id: userId
-        }));
-
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const response = JSON.parse(xhr.response);
-                    subjects = response['subjects'];
-                    window.localStorage.setItem("teacherId", response['teacher_id'])
-                    addSubjectCards(subjects);
-                }
-                catch (e) { console.error('Error parsing JSON: ', e); }
-            }
-        }
     }
 
     function addSubjectCards(subjects) {
