@@ -1,3 +1,15 @@
+function generateColorFromString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const r = (hash >> 16) & 0xFF; // Красный
+    const g = (hash >> 8) & 0xFF;  // Зеленый
+    const b = hash & 0xFF;         // Синий
+    const a = Math.random().toFixed(2); // Генерация случайной прозрачности от 0 до 1
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+    // return '#' + (hash & 0x00FFFFFF).toString(16).padStart(6, '0');
+}  
 document.addEventListener("DOMContentLoaded", () => {
     const userId = window.localStorage.getItem("userId");
     const groups_list = document.getElementById('groups-list');
@@ -157,18 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function subjectChange(){
         getGroups(window.localStorage.getItem("teacherId"),subjects_list.value,null,groups_list)
     }
-    function generateColorFromString(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        const r = (hash >> 16) & 0xFF; // Красный
-        const g = (hash >> 8) & 0xFF;  // Зеленый
-        const b = hash & 0xFF;         // Синий
-        const a = Math.random().toFixed(2); // Генерация случайной прозрачности от 0 до 1
-        return `rgba(${r}, ${g}, ${b}, ${a})`;
-        // return '#' + (hash & 0x00FFFFFF).toString(16).padStart(6, '0');
-    }   
+     
     window.addEventListener('resize', function () {
         if (avgChart) {
             avgChart.destroy();
