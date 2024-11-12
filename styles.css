@@ -8,7 +8,6 @@ body {
     align-items: center;
     margin-top: 20px;
 }
-
 /* .subjects {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -623,5 +622,10 @@ h1 {
 
     .journal-type-header {
         font-size: 16px;
+    }
+    .subject-card{
+        margin: 0 auto;
+        margin-bottom: 20px;
+        max-width: 70%;
     }
 }
