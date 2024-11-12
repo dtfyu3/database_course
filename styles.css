@@ -151,9 +151,11 @@ tbody tr {
     background-color: #f9f9f9;
     transition: background-color 0.3s ease;
 }
-
-tbody tr td:last-child {
+tbody tr td{
     border: 1px solid #dddddd;
+}
+
+tbody tr td:last-child {   
     text-align: center;
 }
 
@@ -422,7 +424,8 @@ input[type="radio"] {
     user-select: none;
 }
 
-#reports {
+.reports {
+    display: block;
     margin: 10px;
     margin-top: 20px;
     background-color: #4CAF50;
@@ -437,7 +440,7 @@ input[type="radio"] {
     height: fit-content;
 }
 
-#reports:hover {
+.reports:hover {
     background-color: #45a049;
     /* Темнее при наведении */
 }
@@ -471,8 +474,8 @@ input[type="radio"] {
     background-color: #f0f0f0;
     transition: left 0.3s;
     z-index: 1000;
-    justify-content: center;
-    display: flex;
+    /* justify-content: center;
+    display: flex; */
 }
 
 .sidebar:hover {
