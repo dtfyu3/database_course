@@ -294,7 +294,9 @@ tbody tr:last-of-type {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
 }
-
+h2{
+    text-align: center;
+}
 .modal-content h2 {
     text-align: center;
 }
@@ -327,7 +329,6 @@ h2 {
     max-width: 96%;
     margin-bottom: 12px;
 }
-
 #editForm input,
 #editForm textarea {
     width: 90%;
@@ -504,7 +505,16 @@ label {
     border: 1px solid #ccc;
     max-width: 150px;
 }
-
+.filter-container{
+    margin: 0 auto; 
+    text-align: center;
+}
+#filter{
+    font-size: 20px;
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 5px;
+}
 #generate-report {
     margin: 0 auto;
     margin-top: 20px;
