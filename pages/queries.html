@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запросы SQL</title>
+    <script src="../scripts/check.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+     <a class="back-button">
+        &#8592; Назад
+    </a>
+    <h2>Запросы SQL</h2>
+    <div class="container" style="text-align: center;">
+        <textarea id="query" name="query" rows="4" cols="50" placeholder="Например: SELECT * FROM students WHERE grade > 4;"></textarea><br>
+        <input type="button" id="execute" class="export" value="Выполнить">
+    </div>
+    <div id="result"></div>
+<script src="queries.js"></script>
+</body>
+</html>
