@@ -315,6 +315,34 @@ function getAttReport($subject)
     }
     echo json_encode($response);
 }
+function getSessionsResults()
+{
+    $conn = getDbConnection();
+    $response['success'] = false;
+    try {
+        $stmt = $conn->prepare("select s.id, date, su.name as subject, type, t.FIO as teacher, st.FIO as student, mark from sessions_results s JOIN subjects su on s.subject_id = su.id
+        join teachers t on s.teacher_id = t.id join students st on s.student_id = st.id");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $sessions[] = [
+                'date' => $row['date'],
+                'subject' => $row['subject'],
+                'type' => $row['type'],
+                'teacher' => $row['teacher'],
+                'student' => $row['student'],
+                'mark' => $row['mark']
+            ];
+        }
+        $response['sessions'] = $sessions;
+        $response['success'] = true;
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
+    }
+    $conn->close();
+    echo json_encode($response);
+}
+
 $data = json_decode(file_get_contents('php://input'), true);
 $action = null;
 $get_action = null;
@@ -323,9 +351,10 @@ if ($get_action != null) {
     if ($get_action == 'getSubjects') getSubjects($data['user_id']);
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
     elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], isset($data['class_id']) ? $data['class_id'] : null, $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
+    elseif ($get_action == 'getSessionsResults') getSessionsResults();
     elseif ($get_action == 'getAttReport') getAttReport($data['subject']);
     elseif ($get_action == 'getSubjectGroups') {
-        getSubjectGroups($data['teacher_id'], isset($data['subject_id'])?$data['subject_id']:null, isset($data['subject']) ? $data['subject'] : null);
+        getSubjectGroups($data['teacher_id'], isset($data['subject_id']) ? $data['subject_id'] : null, isset($data['subject']) ? $data['subject'] : null);
     } elseif ($get_action == 'getJournal') if (isset($data['teacher_id']) && isset($data['type'])) getJournal($data['teacher_id'], $data['subject_id'], $data['group_id'], $data['type']);
 
     else echo ('Invalid action');
