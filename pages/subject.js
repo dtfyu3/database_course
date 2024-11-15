@@ -374,18 +374,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             const cells = row.querySelectorAll("td");
-            const lastCell = cells[cells.length - 1];
-            if (lastCell) {
-                let cellText = lastCell.textContent.trim();
-                const remark = lastCell.getAttribute("data-remark") || "";
+            cells.forEach(cell => {
+                let cellText = cell.textContent.trim();
+                const remark = cell.getAttribute("data-remark") || "";
                 if (cellText === "Н" || cellText === "Н!") {
                     cellText = cellText.replace('!', '').trim();
                     if (remark) {
                         cellText += ` (${remark})`;
                     }
                 }
-                lastCell.textContent = cellText;
-            }
+                cell.textContent = cellText;
+
+            });
+            // const lastCell = cells[cells.length - 1];
+            // if (lastCell) {
+            //     let cellText = lastCell.textContent.trim();
+            //     const remark = lastCell.getAttribute("data-remark") || "";
+            //     if (cellText === "Н" || cellText === "Н!") {
+            //         cellText = cellText.replace('!', '').trim();
+            //         if (remark) {
+            //             cellText += ` (${remark})`;
+            //         }
+            //     }
+            //     lastCell.textContent = cellText;
+            // }
 
         });
         return clone_table;
