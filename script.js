@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const teacherId = window.localStorage.getItem("teacherId");
     document.getElementById('avgreports').addEventListener('click', () => { window.location.href = '/pages/avgreports.html'; });
     document.getElementById('attreports').addEventListener('click', () => { window.location.href = '/pages/attreports.html'; });
+    document.getElementById('sessions').addEventListener('click', () => { window.location.href = '/pages/sessionsResults.html'; });
     if (!window.localStorage.getItem("userId")) window.location.href = 'auth/register.html';
     else {
         userId = window.localStorage.getItem("userId");
