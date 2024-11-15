@@ -386,19 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 cell.textContent = cellText;
 
             });
-            // const lastCell = cells[cells.length - 1];
-            // if (lastCell) {
-            //     let cellText = lastCell.textContent.trim();
-            //     const remark = lastCell.getAttribute("data-remark") || "";
-            //     if (cellText === "Н" || cellText === "Н!") {
-            //         cellText = cellText.replace('!', '').trim();
-            //         if (remark) {
-            //             cellText += ` (${remark})`;
-            //         }
-            //     }
-            //     lastCell.textContent = cellText;
-            // }
-
         });
         return clone_table;
     }
