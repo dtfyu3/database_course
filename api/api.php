@@ -321,7 +321,7 @@ function getSessionsResults()
     $response['success'] = false;
     try {
         $stmt = $conn->prepare("select s.id, date, su.name as subject, type, t.FIO as teacher, st.FIO as student, mark from sessions_results s JOIN subjects su on s.subject_id = su.id
-        join teachers t on s.teacher_id = t.id join students st on s.student_id = st.id");
+        join teachers t on s.teacher_id = t.id join students st on s.student_id = st.id order by date, student");
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
@@ -343,6 +343,34 @@ function getSessionsResults()
     echo json_encode($response);
 }
 
+function executeRawSQL($query)
+{
+    $conn = getDbConnection();
+    $query = trim($query);
+    try {
+        $forbiddenKeywords = ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER'];
+        foreach ($forbiddenKeywords as $keyword) {
+            if (stripos($query, $keyword) !== false) {
+                echo json_encode(['error' => "Ошибка: Нельзя выполнять запросы типа '$keyword'"]);
+                exit;
+            }
+        }
+        $result = $conn->query($query);
+        if ($result === false) {
+            echo json_encode(['error' => 'Ошибка выполнения запроса: ' . $conn->error]);
+        } else {
+            $rows = [];
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+            echo json_encode(['results' => $rows]);
+        }
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
+    }
+    $conn->close();
+}
+
 $data = json_decode(file_get_contents('php://input'), true);
 $action = null;
 $get_action = null;
@@ -352,6 +380,7 @@ if ($get_action != null) {
     elseif ($get_action == 'getAvg') getAvg($data['group_id'], $data['subject'], $data['type'], $data['begin_date'], $data['end_date']);
     elseif ($get_action == 'updateRecord') updateRecord($data['student'], $data['subject_id'], $data['date'], isset($data['class_id']) ? $data['class_id'] : null, $data['type'], $data['value'], isset($data['remark']) ? $data['remark'] : null);
     elseif ($get_action == 'getSessionsResults') getSessionsResults();
+    elseif ($get_action == 'executeRawSQL') executeRawSQL($data['query']);
     elseif ($get_action == 'getAttReport') getAttReport($data['subject']);
     elseif ($get_action == 'getSubjectGroups') {
         getSubjectGroups($data['teacher_id'], isset($data['subject_id']) ? $data['subject_id'] : null, isset($data['subject']) ? $data['subject'] : null);
