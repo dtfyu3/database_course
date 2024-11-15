@@ -337,7 +337,49 @@ h2 {
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+textarea {
+    width: 80%;
+    max-width: 80%;
+    margin: 0 auto;
+    min-height: 150px;
+    padding: 12px 15px;
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: vertical; /* Позволяет изменять размер только по вертикали */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
 
+/* Стили при фокусе */
+textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    background-color: #fff;
+}
+
+/* Стили для placeholder */
+textarea::placeholder {
+    color: #aaa;
+    opacity: 1; /* Убедимся, что placeholder не прозрачен */
+}
+
+/* Отключение выделения текста при двойном клике */
+textarea::selection {
+    background: #007bff;
+    color: #fff;
+}
+#result {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
 #editForm button {
     display: block;
     background-color: #007bff;
@@ -425,6 +467,7 @@ input[type="radio"] {
 }
 
 .reports {
+    width: calc(90%);
     display: block;
     margin: 10px;
     margin-top: 20px;
