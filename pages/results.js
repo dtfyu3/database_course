@@ -75,7 +75,10 @@ function filter(){
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
+    document.querySelector('.back-button').addEventListener('click', () => {
+        window.localStorage.removeItem("currentSubjectId");
+        history.back();
+    });
     document.getElementById("filter").addEventListener('input',filter);
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '../api/api.php?get_action=getSessionsResults', true);
