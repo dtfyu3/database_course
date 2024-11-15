@@ -167,11 +167,8 @@
 
                         if (data.success) {
                             const submit = document.getElementById('submit');
-                            // const tomain = document.getElementById('tomain');
                             submit.disabled = true;
                             submit.classList.add('disabled');
-                            // tomain.disabled = true;
-                            // tomain.classList.add('disabled');
                             localStorage.setItem('userId', data['data']['userId']);
                             localStorage.setItem('userName', data['data']['userName']);
                             notification.classList.add('show');
